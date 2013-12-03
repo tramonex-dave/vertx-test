@@ -31,6 +31,10 @@ dependencies {
     testCompile "org.mockito:mockito-all:$mockitoAllVersion"
 }
 
+tasks.withType(Compile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+}
+
 task writeNewPom << {
     pom {
         project {

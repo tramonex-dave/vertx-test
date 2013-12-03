@@ -15,7 +15,7 @@ import java.net.URI;
  * @author jamesdbloom
  */
 public class MockHttpServerRequest implements HttpServerRequest {
-    private HttpVersion version;
+    private HttpVersion version = HttpVersion.HTTP_1_1;
     private String method = "GET";
     private String uri = "";
     private String path = "";
@@ -27,16 +27,16 @@ public class MockHttpServerRequest implements HttpServerRequest {
     private InetSocketAddress localAddress;
     private X509Certificate[] peerCertificateChain;
     private URI absoluteURI;
+    private Buffer body = new Buffer();
     private Handler<Buffer> bodyHandler;
     private NetSocket netSocket;
     private boolean expectMultiPart;
     private Handler<HttpServerFileUpload> uploadHandler;
-    private MultiMap formAttributes;
+    private MultiMap formAttributes = new CaseInsensitiveMultiMap();
     private Handler<Void> endHandler;
     private Handler<Buffer> dataHandler;
     private boolean pause;
     private Handler<Throwable> exceptionHandler;
-    private Buffer body = new Buffer();
 
     @Override
     public HttpVersion version() {
@@ -143,7 +143,7 @@ public class MockHttpServerRequest implements HttpServerRequest {
         return this.peerCertificateChain;
     }
 
-    public MockHttpServerRequest withPeerCertificationChain(X509Certificate[] peerCertificateChain) {
+    public MockHttpServerRequest withPeerCertificateChain(X509Certificate[] peerCertificateChain) {
         this.peerCertificateChain = peerCertificateChain;
         return this;
     }
