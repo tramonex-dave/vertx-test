@@ -10,6 +10,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.cert.X509Certificate;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.Arrays;
 
 /**
  * @author jamesdbloom
@@ -240,7 +241,7 @@ public class MockHttpServerRequest implements HttpServerRequest {
     @Override
     public MockHttpServerRequest dataHandler(Handler<Buffer> handler) {
         this.dataHandler = handler;
-        if(this.body.length() > 0) {
+        if (this.body.length() > 0) {
             this.dataHandler.handle(this.body);
         }
         return this;

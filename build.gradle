@@ -12,10 +12,28 @@ repositories {
     mavenCentral()
 }
 
+buildscript {
+    repositories {
+        maven { url 'http://repo.springsource.org/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.1'
+    }
+}
+
+// add support for provided and optional dependency scopes
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+
 dependencies {
     // vertx
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-platform:$vertxVersion"
+
+    // html
+    compile "org.jsoup:jsoup:$jsoupVersion"
 
     // commons & guava
     compile "org.apache.commons:commons-lang3:$commonsLang3Version"
@@ -27,7 +45,7 @@ dependencies {
     runtime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 
     // test
-    testCompile "junit:junit:$junitVersion"
+    provided "junit:junit:$junitVersion"
     testCompile "org.mockito:mockito-all:$mockitoAllVersion"
 }
 

@@ -246,7 +246,7 @@ public class MockHttpServerRequestTest {
         // - default is false
         assertFalse(mockHttpServerRequest.isExpectMultiPart());
         // - updated expect multi-part is returned
-        assertEquals(mockHttpServerRequest.expectMultiPart(true).isExpectMultiPart(), true);
+        assertTrue(mockHttpServerRequest.expectMultiPart(true).isExpectMultiPart());
     }
 
     @Test
@@ -311,8 +311,8 @@ public class MockHttpServerRequestTest {
         // - default is false
         assertFalse(mockHttpServerRequest.paused());
         // - updated paused is returned
-        assertEquals(mockHttpServerRequest.pause().paused(), true);
-        assertEquals(mockHttpServerRequest.resume().paused(), false);
+        assertTrue(mockHttpServerRequest.pause().paused());
+        assertFalse(mockHttpServerRequest.resume().paused());
     }
 
     @Test

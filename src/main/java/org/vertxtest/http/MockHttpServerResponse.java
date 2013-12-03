@@ -1,16 +1,20 @@
 package org.vertxtest.http;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ReadOnlyByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.CaseInsensitiveMultiMap;
 import org.vertx.java.core.http.HttpServerResponse;
+
+import java.util.Arrays;
 
 /**
  * @author jamesdbloom
@@ -22,16 +26,16 @@ public class MockHttpServerResponse implements HttpServerResponse {
     private MultiMap headers = new CaseInsensitiveMultiMap();
     private MultiMap trailers = new CaseInsensitiveMultiMap();
     private Handler<Void> closeHandler;
-    private String sendFileFilename;
-    private String sendFileNotFoundFile;
-    private AsyncResult<Void> sendFileResult;
-    private boolean closed = false;
-    private Handler<Void> drainHandler;
-    private Handler<Throwable> exceptionHandler;
-    private int writeQueueMaxSize;
-    private boolean writeQueueFull;
     private ByteBuf byteBuf = Unpooled.buffer();
     private boolean written = false;
+    private String sendFileFilename;
+    private String sendFileNotFoundFile;
+    private Handler<AsyncResult<Void>> resultHandler;
+    private AsyncResult<Void> sendFileResult;
+    private boolean closed = false;
+    private int writeQueueMaxSize = Integer.MAX_VALUE;
+    private Handler<Void> drainHandler;
+    private Handler<Throwable> exceptionHandler;
 
     @Override
     public int getStatusCode() {
@@ -71,6 +75,11 @@ public class MockHttpServerResponse implements HttpServerResponse {
         return headers;
     }
 
+    public MockHttpServerResponse withHeaders(MultiMap headers) {
+        this.headers = headers;
+        return this;
+    }
+
     @Override
     public MockHttpServerResponse putHeader(String name, String value) {
         headers.add(name, value);
@@ -83,9 +92,19 @@ public class MockHttpServerResponse implements HttpServerResponse {
         return this;
     }
 
+    public MockHttpServerResponse putHeader(String name, String... values) {
+        putHeader(name, Arrays.asList(values));
+        return this;
+    }
+
     @Override
     public MultiMap trailers() {
         return trailers;
+    }
+
+    public MockHttpServerResponse withTrailers(MultiMap trailers) {
+        this.trailers = trailers;
+        return this;
     }
 
     @Override
@@ -100,6 +119,11 @@ public class MockHttpServerResponse implements HttpServerResponse {
         return this;
     }
 
+    public MockHttpServerResponse putTrailer(String name, String... values) {
+        putTrailer(name, Arrays.asList(values));
+        return this;
+    }
+
     @Override
     public MockHttpServerResponse closeHandler(Handler<Void> handler) {
         this.closeHandler = handler;
@@ -111,20 +135,20 @@ public class MockHttpServerResponse implements HttpServerResponse {
     }
 
     @Override
-    public MockHttpServerResponse write(Buffer chunk) {
-        byteBuf.writeBytes(chunk.getByteBuf());
-        return this;
-    }
-
-    @Override
     public MockHttpServerResponse write(String chunk, String enc) {
-        byteBuf.writeBytes(new Buffer(chunk, enc).getByteBuf());
+        write(new Buffer(chunk, enc));
         return this;
     }
 
     @Override
     public MockHttpServerResponse write(String chunk) {
-        byteBuf.writeBytes(new Buffer(chunk).getByteBuf());
+        write(new Buffer(chunk));
+        return this;
+    }
+
+    @Override
+    public MockHttpServerResponse write(Buffer chunk) {
+        byteBuf.writeBytes(chunk.getByteBuf());
         return this;
     }
 
@@ -140,6 +164,7 @@ public class MockHttpServerResponse implements HttpServerResponse {
 
     @Override
     public void end(Buffer chunk) {
+        checkWritten();
         if (!chunked && !contentLengthSet()) {
             headers().set("Content-Length", String.valueOf(chunk.length()));
         }
@@ -149,13 +174,21 @@ public class MockHttpServerResponse implements HttpServerResponse {
 
     public byte[] body() {
         byte[] body = new byte[byteBuf.writerIndex()];
-        byteBuf.readBytes(body);
+        new ReadOnlyByteBuf(byteBuf).readBytes(body);
         return body;
+    }
+
+    public Document html() {
+        return Jsoup.parse(new String(body()));
     }
 
     @Override
     public void end() {
         written = true;
+    }
+
+    public boolean written() {
+        return written;
     }
 
     @Override
@@ -177,8 +210,9 @@ public class MockHttpServerResponse implements HttpServerResponse {
     public MockHttpServerResponse sendFile(String filename, String notFoundFile, Handler<AsyncResult<Void>> resultHandler) {
         this.sendFileFilename = filename;
         this.sendFileNotFoundFile = notFoundFile;
-        if (resultHandler != null) {
-            resultHandler.handle(this.sendFileResult);
+        this.resultHandler = resultHandler;
+        if (this.resultHandler != null) {
+            this.resultHandler.handle(this.sendFileResult);
         }
         return this;
     }
@@ -186,6 +220,10 @@ public class MockHttpServerResponse implements HttpServerResponse {
     public MockHttpServerResponse withSendFileResult(AsyncResult<Void> sendFileResult) {
         this.sendFileResult = sendFileResult;
         return this;
+    }
+
+    public Handler<AsyncResult<Void>> resultHandler() {
+        return resultHandler;
     }
 
     public String sendFileFilename() {
@@ -220,12 +258,7 @@ public class MockHttpServerResponse implements HttpServerResponse {
 
     @Override
     public boolean writeQueueFull() {
-        return this.writeQueueFull;
-    }
-
-    public MockHttpServerResponse withWriteQueueFull(boolean writeQueueFull) {
-        this.writeQueueFull = writeQueueFull;
-        return this;
+        return byteBuf.writerIndex() >= this.writeQueueMaxSize;
     }
 
     @Override
