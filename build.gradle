@@ -12,21 +12,6 @@ repositories {
     mavenCentral()
 }
 
-buildscript {
-    repositories {
-        maven { url 'http://repo.springsource.org/plugins-release' }
-    }
-    dependencies {
-        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.1'
-    }
-}
-
-// add support for provided and optional dependency scopes
-apply plugin: 'propdeps'
-apply plugin: 'propdeps-maven'
-apply plugin: 'propdeps-idea'
-apply plugin: 'propdeps-eclipse'
-
 dependencies {
     // vertx
     compile "io.vertx:vertx-core:$vertxVersion"
@@ -45,8 +30,8 @@ dependencies {
     runtime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 
     // test
-    provided "junit:junit:$junitVersion"
-    testCompile "org.mockito:mockito-all:$mockitoAllVersion"
+    compile "junit:junit:$junitVersion"
+    compile "org.mockito:mockito-all:$mockitoAllVersion"
 }
 
 tasks.withType(Compile) {
