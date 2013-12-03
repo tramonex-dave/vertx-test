@@ -13,7 +13,7 @@
     <version>1.1-SNAPSHOT</version>
 
     <name>Vert.X Test</name>
-    <description>API and tools to simplify testing Vert.X Verticals and Modules</description>
+    <description>API and tools to simplify testing Vert.X Verticles and Modules.</description>
     <url>http://www.vertx-test.org</url>
 
     <licenses>
@@ -36,19 +36,11 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
             <version>2.1M2</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-platform</artifactId>
             <version>2.1M2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.0.13.Final</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- html -->
@@ -99,7 +91,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.9.5</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- spring test -->

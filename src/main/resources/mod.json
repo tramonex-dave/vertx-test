@@ -1,0 +1,7 @@
+{
+    "description": "API and tools to simplify testing Vert.X Verticles and Modules.",
+    "licenses": ["The Apache Software License Version 2.0"],
+    "author": "James D Bloom",
+    "keywords": ["MockHttpServerRequest", "MockHttpServerResponse", "unit", "testing", "mock", "mocking", "http", "server", "service", "fake", "vertical"],
+    "homepage": "http://www.vertx-test.com/"
+}
