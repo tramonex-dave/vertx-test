@@ -222,16 +222,6 @@ public class MockHttpServerResponseTest {
         assertEquals(mockHttpServerResponse.written(), true);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowExceptionIfEndCalledMoreThenOnce() throws UnsupportedEncodingException {
-        // given
-        MockHttpServerResponse mockHttpServerResponse = new MockHttpServerResponse();
-        // when
-        mockHttpServerResponse.end("some_string");
-        // then - throw exception
-        mockHttpServerResponse.end("some_string");
-    }
-
     @Test
     public void shouldReturnDocumentIfBodyValidHTML() {
         // given
@@ -253,6 +243,16 @@ public class MockHttpServerResponseTest {
         mockHttpServerResponse.end();
         // then - body marked as written
         assertEquals(mockHttpServerResponse.written(), true);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionIfEndCalledMoreThenOnce() throws UnsupportedEncodingException {
+        // given
+        MockHttpServerResponse mockHttpServerResponse = new MockHttpServerResponse();
+        // when
+        mockHttpServerResponse.end("some_string");
+        // then - throw exception
+        mockHttpServerResponse.end("some_string");
     }
 
     @Test
